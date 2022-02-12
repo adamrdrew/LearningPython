@@ -1,6 +1,7 @@
 import os
 from xmlrpc.client import Boolean
 import mutagen
+from mutagen import MutagenError
 from peewee import *
 from labler.config import CONFIG
 import pdb
@@ -33,10 +34,16 @@ class SongFile:
     def __init__(self, Path):
         self.Path = Path
         self.TagIndex = 0
+        self.LoadError = False
     
     @functools.cache
     def File(self):
-        return mutagen.File(self.Path)
+        try:
+            File = mutagen.File(self.Path)
+        except MutagenError:
+            self.LoadError = True
+            File = {}
+        return File
 
     def GetTag(self, Tag):
         return self.File()[Tag][self.TagIndex]
@@ -53,6 +60,7 @@ class SongFile:
 class MusicScanner:
     def __init__(self, LibraryDir) -> None:
         self.LibraryDir = LibraryDir
+        self.ScanCount = 0
 
     def ScanLibrary(self) -> None:
         self.__ScanDir(self.LibraryDir)
@@ -74,8 +82,10 @@ class MusicScanner:
     def __ScanFile(self, Path):
         if self.__IsFileSupported(Path) == False: return
         songfile = SongFile(Path)
+        if songfile.LoadError: return
         ScannedSong = Song(songfile)
         ScannedSong.save()
+        self.ScanCount += 1
 
     def __IsFileSupported(self, Path) -> Boolean:
         split = os.path.splitext(Path)
