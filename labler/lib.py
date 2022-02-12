@@ -6,6 +6,7 @@ from peewee import *
 from labler.config import CONFIG
 import pdb
 import functools
+import musicbrainzngs
 
 Database = SqliteDatabase(CONFIG["Database"])
 
@@ -91,6 +92,13 @@ class MusicScanner:
         if songfile.LoadError: 
             self.ScanErrorCount += 1
             return
+        self.__AddToDatabase(songDict)
+        self.ScanCount += 1
+        print("Song " + str(self.ScanCount) +" scanned: " + ScannedSong.Title)
+
+    def __AddToDatabase(self,songDict):
+        #The indexes on the end of the get_or_create calls are because
+        #it returns a tuple with the model in 0 and a status code in 1
         ScannedArtist = Artist.get_or_create(Title=songDict["artist"])[0]
         ScannedAlbum = Album.get_or_create(Title=songDict["album"], Artist=ScannedArtist)[0]
         ScannedSong = Song.get_or_create(
@@ -103,8 +111,6 @@ class MusicScanner:
         ScannedArtist.save()
         ScannedAlbum.save()
         ScannedSong.save()
-        self.ScanCount += 1
-        print("Song " + str(self.ScanCount) +" scanned: " + ScannedSong.Title)
 
     def __IsFileSupported(self, Path) -> Boolean:
         split = os.path.splitext(Path)
@@ -125,12 +131,24 @@ class Artist(MetaModel):
     #ArtLarge = BlobField()
     #About = CharField()
 
+
+
 class Album(MetaModel):
     Title = CharField()
     Artist = ForeignKeyField(Artist, backref='Albums')
-    #ArtLarge = BlobField()
-    #ArtSmall = BlobField()
+    ArtLarge = BlobField()
+    ArtSmall = BlobField()
     #About = CharField()
+
+    @functools.cache
+    def __MusicBrainzData(self):
+        query="album:" + self.Title + " artist:" + self.Artist.Title
+        results = musicbrainzngs.search_releases(query=query)
+        return results["release-list"][0]
+
+    @functools.cache
+    def MBID(self):
+        return self.__MusicBrainzData()["id"]
 
 class Song(MetaModel):
     Album = ForeignKeyField(Album, backref='Songs')

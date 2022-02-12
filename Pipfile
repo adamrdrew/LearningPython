@@ -9,6 +9,7 @@ nltk = "*"
 mutagen = "*"
 peewee = "*"
 pygn = "*"
+musicbrainzngs = "*"
 
 [dev-packages]
 
