@@ -105,15 +105,16 @@ class MusicScanner:
             if extension == SupportedFile: return True    
         return False
 
-class Song(Model):
+class MetaModel(Model):
+    class Meta:
+        database = Database
+
+class Song(MetaModel):
     Album = CharField()
     Title = CharField()
     Artist = CharField()
     TrackNumber = IntegerField()
     Path = CharField()
-
-    class Meta:
-        database = Database
 
     @classmethod
     def Create(Class, SongDict):
@@ -124,6 +125,19 @@ class Song(Model):
                 TrackNumber=SongDict["tracknumber"],
                 Path=SongDict["path"])
             return model
+
+class Album(MetaModel):
+    Title = CharField()
+    Artist = CharField()
+    ArtLarge = BlobField()
+    ArtSmall = BlobField()
+    About = CharField()
+
+class Artist(MetaModel):
+    Title = CharField()
+    ArtSmall = BlobField()
+    ArtLarge = BlobField()
+    About = CharField()
 
 Database.connect()
 Database.create_tables([Song])

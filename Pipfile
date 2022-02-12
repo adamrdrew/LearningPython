@@ -8,6 +8,7 @@ flask = "*"
 nltk = "*"
 mutagen = "*"
 peewee = "*"
+pygn = "*"
 
 [dev-packages]
 
