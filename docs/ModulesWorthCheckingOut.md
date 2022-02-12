@@ -14,6 +14,8 @@ Hey, at least I'll have acces to the best ML libs in the world!
 * [PyClustering](https://pypi.org/project/pyclustering/#:~:text=%20pyclustering%20is%20a%20Python%2C%20C%2B%2B%20data%20mining,supported%20for%20Linux%2C%20Windows%20and%20MacOS%20operating%20systems.)
 
 ## ORM
+PeeWee is my favorite so far. Its very light weight and reminds me a lot of Sequel that we used in Ruby.
 * [Overview of Python ORMs](https://www.fullstackpython.com/object-relational-mappers-orms.html)
 * [SWQLAlchemy](https://www.sqlalchemy.org/library.html)
+* [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/models.html)
 

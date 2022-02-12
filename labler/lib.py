@@ -8,7 +8,7 @@ import pdb
 import functools
 
 Database = SqliteDatabase(CONFIG["Database"])
-Database.connect()
+
 
 class RouteManager:
     def __init__(self) -> None:
@@ -49,18 +49,23 @@ class SongFile:
         return self.File()[Tag][self.TagIndex]
 
     def ToDict(self):
-        return {
-            "album" : self.GetTag("album"),
-            "title" : self.GetTag("title"),
-            "artist" : self.GetTag("artist"),
-            "path" : self.Path,
-            "tracknumber" : self.GetTag("tracknumber")
-        }
+        try:
+            return {
+                "album" : self.GetTag("album"),
+                "title" : self.GetTag("title"),
+                "artist" : self.GetTag("artist"),
+                "path" : self.Path,
+                "tracknumber" : self.GetTag("tracknumber")
+            }
+        except KeyError:
+            self.LoadError = True
+            return {}
 
 class MusicScanner:
     def __init__(self, LibraryDir) -> None:
         self.LibraryDir = LibraryDir
         self.ScanCount = 0
+        self.ScanErrorCount = 0
 
     def ScanLibrary(self) -> None:
         self.__ScanDir(self.LibraryDir)
@@ -82,10 +87,14 @@ class MusicScanner:
     def __ScanFile(self, Path):
         if self.__IsFileSupported(Path) == False: return
         songfile = SongFile(Path)
-        if songfile.LoadError: return
-        ScannedSong = Song(songfile)
+        songDict = songfile.ToDict()
+        if songfile.LoadError: 
+            self.ScanErrorCount += 1
+            return
+        ScannedSong = Song.Create(songDict)
         ScannedSong.save()
         self.ScanCount += 1
+        print("Song " + str(self.ScanCount) +" scanned: " + ScannedSong.Title)
 
     def __IsFileSupported(self, Path) -> Boolean:
         split = os.path.splitext(Path)
@@ -106,12 +115,17 @@ class Song(Model):
     class Meta:
         database = Database
 
-    def __init__(self, SongFile):
-            Metadata = SongFile.ToDict()
-            print(Metadata)
-            self.Album = Metadata["album"]
-            self.Title = Metadata["title"]
-            self.Artist = Metadata["artist"]
-            self.TrackNumber = Metadata["tracknumber"]
-            self.Path = Metadata["Path"]
+    @classmethod
+    def Create(Class, SongDict):
+            model = Class(
+                Album=SongDict["album"], 
+                Title=SongDict["title"],
+                Artist=SongDict["artist"],
+                TrackNumber=SongDict["tracknumber"],
+                Path=SongDict["path"])
+            return model
+
+Database.connect()
+Database.create_tables([Song])
+
 
