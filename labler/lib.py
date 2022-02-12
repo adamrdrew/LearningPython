@@ -91,7 +91,17 @@ class MusicScanner:
         if songfile.LoadError: 
             self.ScanErrorCount += 1
             return
-        ScannedSong = Song.Create(songDict)
+        ScannedArtist = Artist.get_or_create(Title=songDict["artist"])[0]
+        ScannedAlbum = Album.get_or_create(Title=songDict["album"], Artist=ScannedArtist)[0]
+        ScannedSong = Song.get_or_create(
+            Title=songDict["title"],
+            TrackNumber=songDict["tracknumber"],
+            Path=songDict["path"],
+            Artist=ScannedArtist,
+            Album=ScannedAlbum
+        )[0]
+        ScannedArtist.save()
+        ScannedAlbum.save()
         ScannedSong.save()
         self.ScanCount += 1
         print("Song " + str(self.ScanCount) +" scanned: " + ScannedSong.Title)
@@ -109,37 +119,27 @@ class MetaModel(Model):
     class Meta:
         database = Database
 
-class Song(MetaModel):
-    Album = CharField()
+class Artist(MetaModel):
     Title = CharField()
-    Artist = CharField()
-    TrackNumber = IntegerField()
-    Path = CharField()
-
-    @classmethod
-    def Create(Class, SongDict):
-            model = Class(
-                Album=SongDict["album"], 
-                Title=SongDict["title"],
-                Artist=SongDict["artist"],
-                TrackNumber=SongDict["tracknumber"],
-                Path=SongDict["path"])
-            return model
+    #ArtSmall = BlobField()
+    #ArtLarge = BlobField()
+    #About = CharField()
 
 class Album(MetaModel):
     Title = CharField()
-    Artist = CharField()
-    ArtLarge = BlobField()
-    ArtSmall = BlobField()
-    About = CharField()
+    Artist = ForeignKeyField(Artist, backref='Albums')
+    #ArtLarge = BlobField()
+    #ArtSmall = BlobField()
+    #About = CharField()
 
-class Artist(MetaModel):
+class Song(MetaModel):
+    Album = ForeignKeyField(Album, backref='Songs')
     Title = CharField()
-    ArtSmall = BlobField()
-    ArtLarge = BlobField()
-    About = CharField()
+    Artist = ForeignKeyField(Artist, backref='Songs')
+    TrackNumber = IntegerField()
+    Path = CharField()
 
 Database.connect()
-Database.create_tables([Song])
+Database.create_tables([Song, Album, Artist])
 
 
