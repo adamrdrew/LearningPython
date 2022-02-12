@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2a198832b7490785efdf77376e2327a5ce3817d9fc4328d7e464c00ed32b72ec"
+            "sha256": "c010f0900c1fd0bb5150c887eaf92e35a3aec0fe6156eab31af0f3459b471ec4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -131,6 +131,14 @@
             "markers": "python_version >= '3.6'",
             "version": "==2.0.1"
         },
+        "mutagen": {
+            "hashes": [
+                "sha256:6397602efb3c2d7baebd2166ed85731ae1c1d475abca22090b7141ff5034b3e1",
+                "sha256:9c9f243fcec7f410f138cb12c21c84c64fde4195481a30c9bfb05b5f003adfed"
+            ],
+            "index": "pypi",
+            "version": "==1.45.1"
+        },
         "nltk": {
             "hashes": [
                 "sha256:ba3de02490308b248f9b94c8bc1ac0683e9aa2ec49ee78536d8667afb5e3eec8",
@@ -138,6 +146,13 @@
             ],
             "index": "pypi",
             "version": "==3.7"
+        },
+        "peewee": {
+            "hashes": [
+                "sha256:01bd7f734defb08d7a3346a0c0ca7011bc8d0d685934ec0e001b3371d522ec53"
+            ],
+            "index": "pypi",
+            "version": "==3.14.8"
         },
         "regex": {
             "hashes": [

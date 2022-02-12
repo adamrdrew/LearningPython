@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 flask = "*"
 nltk = "*"
+mutagen = "*"
+peewee = "*"
 
 [dev-packages]
 
