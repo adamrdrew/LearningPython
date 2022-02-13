@@ -20,3 +20,4 @@ python_version = "3.10"
 [scripts]
 scan = "python scan.py"
 server = 'rerun "python router.py"'
+frontend = 'npm run dev --prefix musicplayer-frontend/'

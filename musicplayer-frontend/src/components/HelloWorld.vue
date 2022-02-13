@@ -1,20 +1,32 @@
-<script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true
+<script>
+export default {
+  data() {
+    return {
+      message: "Hey from Adam"
+    }
+  },
+  props() {
+    return {
+      msg: "From adam"
+    }
+  },
+  methods: {
+      ChangeIt() {
+        this.message = "Did it";
+      }
   }
-})
+}
 </script>
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
+    <h1 class="green">Adam: {{ message }}</h1>
     <h3>
       You’ve successfully created a project with
       <a target="_blank" href="https://vitejs.dev/">Vite</a> +
       <a target="_blank" href="https://vuejs.org/">Vue 3</a>.
     </h3>
+    <button v-on:click="ChangeIt"/>
   </div>
 </template>
 
