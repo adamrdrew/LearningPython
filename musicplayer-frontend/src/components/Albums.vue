@@ -27,10 +27,12 @@ export default {
 </script>
 
 <template>
-  <div>
-      <button v-on:click="GetAlbums">Get</button>
-      <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
-  </div>
+<div class="container-fluid">
+    <button v-on:click="GetAlbums">Get</button>
+    <div class="d-flex flex-row flex-wrap">
+        <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
+    </div>
+</div>
 </template>
 
 <style scoped>
