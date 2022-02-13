@@ -1,7 +1,6 @@
 <script>
 //import AlbumCard from '@/components/cards/AlbumCard.vue'
 import AlbumCard from './cards/AlbumCard.vue';
-import {Howl, Howler} from 'howler';
 
 export default {
   components: { AlbumCard },
@@ -25,19 +24,8 @@ export default {
         const d = await res.json();
         this.albums = d;
       },
-      async GetSong() {
-        const res = await fetch("http://127.0.0.1:5000/api/song/1")
-        const d = await res.json();
-        this.Song = d;
-      },
-      PlaySong() {
-        console.log("didi")
-        this.SongPlayer = new Howl({
-          src: [this.Song],
-          format: ["flac"]
-        });
-        this.SongPlayer.play();
-        console.log(this.SongPlayer)
+      PlayAlbum(album){
+        console.log("Clicked " + album.Title);
       }
   }
 }
@@ -48,9 +36,10 @@ export default {
     <button v-on:click="GetAlbums">Get</button>
     <button v-on:click="GetSong">Get Song</button>
     <button v-on:click="PlaySong">Play Song</button>
+    <!-- Keeping this in my back pocket <audio controls v-bind:src="Song.MusicStream"/> -->
     <p>{{Song.Title}}</p>
     <div class="d-flex flex-row flex-wrap gap-3" >
-        <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
+        <album-card v-on:click="PlayAlbum(album)" v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
     </div>
 </div>
 </template>

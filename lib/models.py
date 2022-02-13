@@ -28,7 +28,7 @@ class Song(MetaModel):
 
     def GetEncodedFile(self):
         with open(self.Path, "rb") as SongFile:
-            return base64.b64encode(SongFile.read()).decode('utf-8')
+            return "data:audio/flac;base64," + base64.b64encode(SongFile.read()).decode('utf-8')
 
 Database.connect()
 Database.create_tables([Song, Album, Artist])

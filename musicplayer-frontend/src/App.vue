@@ -1,8 +1,23 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
+<script>
+import { RouterLink, RouterView } from 'vue-router';
+import MusicPlayer from './components/MusicPlayer.vue';
+
+export default {
+  data() {
+    return {
+      SongID: ""
+    }
+  },
+  methods: {
+    LoadSong(SongID) {
+      this.SongID = SongID;
+    }
+  }
+}
 </script>
 
 <template>
+<div>
   <header>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <div class="wrapper">
@@ -15,7 +30,10 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
   </header>
 
-  <RouterView />
+  <MusicPlayer v-bind:Song="SongID"/>
+  <RouterView @load-song="LoadSong"/>
+</div>
+
 </template>
 
 <style>
