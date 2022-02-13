@@ -7,9 +7,21 @@ from labler.config import CONFIG
 import pdb
 import functools
 import musicbrainzngs
+import base64
 
 Database = SqliteDatabase(CONFIG["Database"])
 
+class UnknownAlbumImages:
+    def __init__(self):
+        self.PathSmall = "images/UnknownAlbumSmall.jpg"
+        self.PathLarge = "images/UnknownAlbumLarge.jpg"
+        self.EncodedImageLarge = self.__GetEncodedImage(self.PathLarge)
+        self.EncodedImageSmall = self.__GetEncodedImage(self.PathSmall)
+        pass
+
+    def __GetEncodedImage(self, Path):
+        with open(Path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode('utf-8')
 
 class RouteManager:
     def __init__(self) -> None:
@@ -67,9 +79,14 @@ class MusicScanner:
         self.LibraryDir = LibraryDir
         self.ScanCount = 0
         self.ScanErrorCount = 0
+        self.Debug = False
+        self.UnknownAlbumImages = UnknownAlbumImages()
 
     def ScanLibrary(self) -> None:
         self.__ScanDir(self.LibraryDir)
+        if self.Debug == False: return
+        print("Files scanned: " + str(self.ScanCount))
+        print("Error count: " + str(self.ScanErrorCount))
 
     #Private Methods
     def __GetFileList(self, Path) -> list:
@@ -94,13 +111,18 @@ class MusicScanner:
             return
         self.__AddToDatabase(songDict)
         self.ScanCount += 1
-        print("Song " + str(self.ScanCount) +" scanned: " + ScannedSong.Title)
+        if self.Debug: print("Song " + str(self.ScanCount) +" scanned: " + songDict["title"])
 
     def __AddToDatabase(self,songDict):
         #The indexes on the end of the get_or_create calls are because
         #it returns a tuple with the model in 0 and a status code in 1
         ScannedArtist = Artist.get_or_create(Title=songDict["artist"])[0]
-        ScannedAlbum = Album.get_or_create(Title=songDict["album"], Artist=ScannedArtist)[0]
+        ScannedAlbum = Album.get_or_create(
+            Title=songDict["album"], 
+            Artist=ScannedArtist,
+            ArtSmall=self.UnknownAlbumImages.EncodedImageSmall,
+            ArtLarge=self.UnknownAlbumImages.EncodedImageLarge,
+        )[0]
         ScannedSong = Song.get_or_create(
             Title=songDict["title"],
             TrackNumber=songDict["tracknumber"],
