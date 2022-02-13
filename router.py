@@ -1,7 +1,10 @@
 import pdb
 
 from flask import Flask, jsonify
+from flask_cors import CORS,cross_origin
 app = Flask( __name__ )
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 from labler.lib import *
 Manager = RouteManager()
@@ -63,9 +66,26 @@ def APIAlbum(id):
             "ID": album.Artist.id,
             "Title": album.Artist.Title
         },
-        "Songs": album.Songs
+        "Songs": [{
+            "Title":song.Title, 
+            "Id":song.id,
+        } for song in album.Songs]
     }
     return jsonify(AlbumInfo)
+
+@app.route('/api/album/all')
+def APIAllAlbums():
+    AlbumResults = Album.select()
+    AlbumsInfo = [{
+            "Title":album.Title, 
+            "ID":album.id,
+            "Artist": {
+                "ID": album.Artist.id,
+                "Title": album.Artist.Title
+            },
+            "ArtSmall":"data:image/jpg;base64,"+album.ArtSmall.decode()
+        } for album in AlbumResults]
+    return jsonify(AlbumsInfo)
 
 if __name__ == '__main__':
         app.run()
