@@ -1,5 +1,9 @@
 <script>
+//import AlbumCard from '@/components/cards/AlbumCard.vue'
+import AlbumCard from './cards/AlbumCard.vue';
+
 export default {
+  components: { AlbumCard },
   data() {
     return {
       message: "Hey from Adam",
@@ -13,17 +17,19 @@ export default {
       ChangeIt() {
         this.message = "Did it";
       },
-      GetAlbums() {
-          fetch("http://127.0.0.1:5000/api/album/all").then(res => res.json()).then(d => this.data.albums = d)
+      async GetAlbums() {
+        const res = await fetch("http://127.0.0.1:5000/api/album/all")
+        const d = await res.json();
+        this.albums = d;
       }
   }
 }
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">Adam: {{ message }} {{ PropMessage }}</h1>
-    <button v-on:click="GetAlbums" title="Get">Get</button>
+  <div>
+      <button v-on:click="GetAlbums">Get</button>
+      <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
   </div>
 </template>
 
