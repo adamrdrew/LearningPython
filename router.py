@@ -7,15 +7,6 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 from labler.lib import *
-Manager = RouteManager()
-
-@app.route('/')
-def root():
-    return Manager.root('/')
-
-@app.route('/greet/<name>')
-def greet(name):
-    return Manager.greet(name)
 
 @app.route('/artist/by/title/<title>')
 def GetArtistByName(title):

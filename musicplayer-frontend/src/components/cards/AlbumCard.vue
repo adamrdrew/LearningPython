@@ -26,10 +26,10 @@ export default {
 </script>
 
 <template>
-    <div class="card" style="width: 18rem;">
-        <img class="card-img-top" v-bind:src="album.ArtSmall"/>
+    <div class="card" style="width: 10em;">
+        <img class="card-img-top" v-bind:src="album.ArtSmall" style="width: 10em; height: 10em"/>
         <div class="card-body">
-            <h5 class="card-title">{{album.Title}}</h5>
+            <h6 class="card-title">{{album.Title}}</h6>
             <p class="card-text">{{album.Artist.Title}}</p>
         </div>
   </div>

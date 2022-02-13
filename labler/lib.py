@@ -1,5 +1,5 @@
 import os
-from xmlrpc.client import Boolean
+from xmlrpc.client import Boolean, ResponseError
 import mutagen
 from mutagen import MutagenError
 from peewee import *
@@ -23,25 +23,40 @@ class UnknownAlbumImages:
         with open(Path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode('utf-8')
 
-class RouteManager:
-    def __init__(self) -> None:
-        self.messages = Messages()
+class MetaModel(Model):
+    class Meta:
+        database = Database
 
-    def root(self, args):
-        return self.messages.root()
+class Artist(MetaModel):
+    Title = CharField()
+    MBID = CharField(null=True)
 
-    def greet(self, name):
-        return self.messages.greet(name)
+class Album(MetaModel):
+    Title = CharField()
+    Artist = ForeignKeyField(Artist, backref='Albums')
+    ArtLarge = BlobField()
+    ArtSmall = BlobField()
+    MBID = CharField(null=True)
 
-class Messages:
-    def __init__(self) -> None:
-        pass
+    @functools.cache
+    def __MusicBrainzData(self):
+        query="album:" + self.Title + " artist:" + self.Artist.Title
+        results = musicbrainzngs.search_releases(query=query)
+        return results["release-list"][0]
 
-    def root(self):
-        return "Hello from app"
+    @functools.cache
+    def MBID(self):
+        return self.__MusicBrainzData()["id"]
 
-    def greet(self, name):
-        return "Hi " + name + " good to meet you!"
+class Song(MetaModel):
+    Album = ForeignKeyField(Album, backref='Songs')
+    Title = CharField()
+    Artist = ForeignKeyField(Artist, backref='Songs')
+    TrackNumber = IntegerField()
+    Path = CharField()
+
+Database.connect()
+Database.create_tables([Song, Album, Artist])
 
 class SongFile:
     def __init__(self, Path):
@@ -73,6 +88,33 @@ class SongFile:
         except KeyError:
             self.LoadError = True
             return {}
+
+class AlbumArtScanner:
+    def __init__(self):
+        musicbrainzngs.set_useragent("JustMessingAroundAtHomeForFun", "0.01", "adamrdrew@live.com")
+
+    def ScanLibrary(self):
+        Albums = Album.select()
+        [self.__FindAlbum(album) for album in Albums]
+
+    def __FindAlbum(self, album):
+        print("Getting: " + album.Title)
+        results = musicbrainzngs.search_releases(
+            artist=album.Artist.Title,
+            release=album.Title,
+            limit=1)
+        if len(results['release-list']) == 0: return
+        MBAlbum = results['release-list'][0]
+        album.MBID = MBAlbum["id"]
+        try:
+            self.__FindArt(album)
+        except musicbrainzngs.musicbrainz.ResponseError:
+            print("Error")
+        album.save()
+
+    def __FindArt(self, album):
+        album.ArtLarge = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size="1200")).decode('utf-8')
+        album.ArtSmall = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size="250")).decode('utf-8')
 
 class MusicScanner:
     def __init__(self, LibraryDir) -> None:
@@ -143,43 +185,6 @@ class MusicScanner:
             if extension == SupportedFile: return True    
         return False
 
-class MetaModel(Model):
-    class Meta:
-        database = Database
 
-class Artist(MetaModel):
-    Title = CharField()
-    #ArtSmall = BlobField()
-    #ArtLarge = BlobField()
-    #About = CharField()
-
-
-
-class Album(MetaModel):
-    Title = CharField()
-    Artist = ForeignKeyField(Artist, backref='Albums')
-    ArtLarge = BlobField()
-    ArtSmall = BlobField()
-    #About = CharField()
-
-    @functools.cache
-    def __MusicBrainzData(self):
-        query="album:" + self.Title + " artist:" + self.Artist.Title
-        results = musicbrainzngs.search_releases(query=query)
-        return results["release-list"][0]
-
-    @functools.cache
-    def MBID(self):
-        return self.__MusicBrainzData()["id"]
-
-class Song(MetaModel):
-    Album = ForeignKeyField(Album, backref='Songs')
-    Title = CharField()
-    Artist = ForeignKeyField(Artist, backref='Songs')
-    TrackNumber = IntegerField()
-    Path = CharField()
-
-Database.connect()
-Database.create_tables([Song, Album, Artist])
 
 

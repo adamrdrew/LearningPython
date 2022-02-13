@@ -29,7 +29,7 @@ export default {
 <template>
 <div class="container-fluid">
     <button v-on:click="GetAlbums">Get</button>
-    <div class="d-flex flex-row flex-wrap">
+    <div class="d-flex flex-row flex-wrap gap-3" >
         <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
     </div>
 </div>
