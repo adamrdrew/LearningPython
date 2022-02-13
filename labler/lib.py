@@ -81,7 +81,7 @@ class SongFile:
             return {
                 "album" : self.GetTag("album"),
                 "title" : self.GetTag("title"),
-                "artist" : self.GetTag("artist"),
+                "artist" : self.GetTag("albumartist"),
                 "path" : self.Path,
                 "tracknumber" : self.GetTag("tracknumber")
             }
