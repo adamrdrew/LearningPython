@@ -78,5 +78,25 @@ def APIAllAlbums():
         } for album in AlbumResults]
     return jsonify(AlbumsInfo)
 
+@app.route('/api/song/<id>')
+def APISong(id):
+        SongResult = Song.get(id=id)
+        SongInfo = {
+            "Title": SongResult.Title,
+            "ID": SongResult.id,
+            "Path": SongResult.Path,
+            "MusicStream": SongResult.GetEncodedFile(),
+            "Artist": {
+                "ID": SongResult.Artist.id,
+                "Title": SongResult.Artist.Title
+            },
+            "Album": {
+                "ID": SongResult.Album.id,
+                "Title": SongResult.Album.Title,
+                "ArtSmall": "data:image/jpg;base64,"+SongResult.Album.ArtSmall.decode()
+            },            
+        }
+        return jsonify(SongInfo)
+
 if __name__ == '__main__':
         app.run()
