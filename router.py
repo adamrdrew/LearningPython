@@ -6,7 +6,7 @@ app = Flask( __name__ )
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-from labler.lib import *
+from lib.models import Album, Artist, Song
 
 @app.route('/artist/by/title/<title>')
 def GetArtistByName(title):

@@ -1,104 +1,21 @@
-import os
-from xmlrpc.client import Boolean, ResponseError
-import mutagen
-from mutagen import MutagenError
-from peewee import *
-from labler.config import CONFIG
-import pdb
-import functools
 import musicbrainzngs
+from lib.models import Album, Artist, Song
 import base64
-
-Database = SqliteDatabase(CONFIG["Database"])
-
-class UnknownAlbumImages:
-    def __init__(self):
-        self.PathSmall = "images/UnknownAlbumSmall.jpg"
-        self.PathLarge = "images/UnknownAlbumLarge.jpg"
-        self.EncodedImageLarge = self.__GetEncodedImage(self.PathLarge)
-        self.EncodedImageSmall = self.__GetEncodedImage(self.PathSmall)
-        pass
-
-    def __GetEncodedImage(self, Path):
-        with open(Path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode('utf-8')
-
-class MetaModel(Model):
-    class Meta:
-        database = Database
-
-class Artist(MetaModel):
-    Title = CharField()
-    MBID = CharField(null=True)
-
-class Album(MetaModel):
-    Title = CharField()
-    Artist = ForeignKeyField(Artist, backref='Albums')
-    ArtLarge = BlobField()
-    ArtSmall = BlobField()
-    MBID = CharField(null=True)
-
-    @functools.cache
-    def __MusicBrainzData(self):
-        query="album:" + self.Title + " artist:" + self.Artist.Title
-        results = musicbrainzngs.search_releases(query=query)
-        return results["release-list"][0]
-
-    @functools.cache
-    def MBID(self):
-        return self.__MusicBrainzData()["id"]
-
-class Song(MetaModel):
-    Album = ForeignKeyField(Album, backref='Songs')
-    Title = CharField()
-    Artist = ForeignKeyField(Artist, backref='Songs')
-    TrackNumber = IntegerField()
-    Path = CharField()
-
-Database.connect()
-Database.create_tables([Song, Album, Artist])
-
-class SongFile:
-    def __init__(self, Path):
-        self.Path = Path
-        self.TagIndex = 0
-        self.LoadError = False
-    
-    @functools.cache
-    def File(self):
-        try:
-            File = mutagen.File(self.Path)
-        except MutagenError:
-            self.LoadError = True
-            File = {}
-        return File
-
-    def GetTag(self, Tag):
-        return self.File()[Tag][self.TagIndex]
-
-    def ToDict(self):
-        try:
-            return {
-                "album" : self.GetTag("album"),
-                "title" : self.GetTag("title"),
-                "artist" : self.GetTag("albumartist"),
-                "path" : self.Path,
-                "tracknumber" : self.GetTag("tracknumber")
-            }
-        except KeyError:
-            self.LoadError = True
-            return {}
+from lib.config import CONFIG
+import os
+from lib.scannerlib import UnknownAlbumImages, SongFile
 
 class AlbumArtScanner:
     def __init__(self):
-        musicbrainzngs.set_useragent("JustMessingAroundAtHomeForFun", "0.01", "adamrdrew@live.com")
+        musicbrainzngs.set_useragent(CONFIG["MusicBrains"]["Name"], CONFIG["MusicBrains"]["Version"], CONFIG["MusicBrains"]["Contact"])
+        self.Debug = False
 
     def ScanLibrary(self):
         Albums = Album.select()
         [self.__FindAlbum(album) for album in Albums]
 
     def __FindAlbum(self, album):
-        print("Getting: " + album.Title)
+        if self.Debug: print("Getting: " + album.Title)
         results = musicbrainzngs.search_releases(
             artist=album.Artist.Title,
             release=album.Title,
@@ -109,12 +26,13 @@ class AlbumArtScanner:
         try:
             self.__FindArt(album)
         except musicbrainzngs.musicbrainz.ResponseError:
-            print("Error")
+            if self.Debug: print("Error")
+            pass
         album.save()
 
     def __FindArt(self, album):
-        album.ArtLarge = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size="1200")).decode('utf-8')
-        album.ArtSmall = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size="250")).decode('utf-8')
+        album.ArtLarge = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrains"]["ImageSizeLarge"])).decode('utf-8')
+        album.ArtSmall = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrains"]["ImageSizeSmall"])).decode('utf-8')
 
 class MusicScanner:
     def __init__(self, LibraryDir) -> None:
@@ -176,7 +94,7 @@ class MusicScanner:
         ScannedAlbum.save()
         ScannedSong.save()
 
-    def __IsFileSupported(self, Path) -> Boolean:
+    def __IsFileSupported(self, Path):
         split = os.path.splitext(Path)
         if split == False: return False
         if len(split) != 2: return False
@@ -184,7 +102,3 @@ class MusicScanner:
         for SupportedFile in CONFIG["SupportedFiles"]:
             if extension == SupportedFile: return True    
         return False
-
-
-
-
