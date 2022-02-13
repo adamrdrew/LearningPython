@@ -7,7 +7,7 @@ from lib.scannerlib import UnknownAlbumImages, SongFile
 
 class AlbumArtScanner:
     def __init__(self):
-        musicbrainzngs.set_useragent(CONFIG["MusicBrains"]["Name"], CONFIG["MusicBrains"]["Version"], CONFIG["MusicBrains"]["Contact"])
+        musicbrainzngs.set_useragent(CONFIG["MusicBrainz"]["Name"], CONFIG["MusicBrainz"]["Version"], CONFIG["MusicBrainz"]["Contact"])
         self.Debug = False
 
     def ScanLibrary(self):
@@ -31,8 +31,8 @@ class AlbumArtScanner:
         album.save()
 
     def __FindArt(self, album):
-        album.ArtLarge = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrains"]["ImageSizeLarge"])).decode('utf-8')
-        album.ArtSmall = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrains"]["ImageSizeSmall"])).decode('utf-8')
+        album.ArtLarge = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrainz"]["ImageSizeLarge"])).decode('utf-8')
+        album.ArtSmall = base64.b64encode(musicbrainzngs.get_image(mbid=album.MBID, coverid="front", size=CONFIG["MusicBrainz"]["ImageSizeSmall"])).decode('utf-8')
 
 class MusicScanner:
     def __init__(self, LibraryDir) -> None:
