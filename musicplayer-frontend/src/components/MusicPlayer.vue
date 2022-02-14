@@ -1,5 +1,6 @@
 <script>
 import {Howl, Howler} from 'howler';
+import PlayControls from './PlayControls.vue';
 
 export default {
   data() {
@@ -12,10 +13,12 @@ export default {
       SongPlayer: {},
       intervalHandle: {},
       SongLength: 0,
-      SongPlaybackPosition: 0
+      SongPlaybackPosition: 0,
+      Paused: false
     }
   },
-  props: {
+  components: {
+    PlayControls
   },
   methods: {
       PlaySong() {
@@ -41,18 +44,25 @@ export default {
         if ( !this.SongPlayer.playing ) return
         this.SongPlayer.stop();
       },
-      SkipForward() {
-        this.$store.commit("SkipForward");
-      },
-      SkipBackward() {
-        this.$store.commit("SkipBackward");
+      PauseSong() {
+        if ( this.Paused ) {
+          this.SongPlayer.play(); 
+        } else {  
+          this.SongPlayer.pause();
+        }
+        this.Paused = !this.Paused;
       },
       Tick() {
         if ( this.SongLoaded ) {
           this.SongLength = this.SongPlayer.duration();
           this.SongPlaybackPosition = this.SongPlayer.seek();
         }
-
+      },
+      SkipForward() {
+        this.$store.commit("SkipForward");
+      },
+      SkipBackward() {
+        this.$store.commit("SkipBackward");
       }
   },
   created() {
@@ -84,24 +94,18 @@ export default {
 </script>
 
 <template>
-<div class="container-fluid fixed-top shadow-sm" style="background-color:white">
-  <div v-if="SongLoaded" class="container-fluid">
-    <div class="row">
+<div class="container-fluid fixed-top shadow-sm" style="background-color:white; height: 5em;">
+  <div class="container-fluid" style="height: 5em;">
+    <div class="row"  style="height: 5em;">
       <div class="col-md-4 d-flex align-items-center">
-        <div class="btn-group">
-          <button class="btn btn-secondary"  v-on:click="SkipBackward">Back</button>
-          <button class="btn btn-secondary" v-on:click="PlaySong">Play</button>
-          <button class="btn btn-secondary" >Pause</button>
-          <button class="btn btn-secondary" v-on:click="StopSong">Stop</button>
-          <button class="btn btn-secondary" v-on:click="SkipForward">Next</button>
-        </div>
+          <play-controls v-bind:Disabled="!SongLoaded" @back="SkipBackward" @forward="SkipForward" @stop="StopSong" @play="PlaySong" @pause="PauseSong"/>
       </div>
       <div class="col-md-4">
         <div class="d-flex align-items-center">
           <div class="flex-shrink-0">
-            <img v-bind:src="Song.Album.ArtSmall" class="img-fluid" style="width:5em;"/>
+            <img v-if="SongLoaded" v-bind:src="Song.Album.ArtSmall" class="img-fluid" style="width:5em;"/>
           </div>
-          <div class="flex-grow-1 ms-3">
+          <div  v-if="SongLoaded" class="flex-grow-1 ms-3">
             <h6>{{Song.Title}}</h6>
             <small class="card-text">{{Song.Artist.Title}}</small>
             <div class="progress">
@@ -114,14 +118,6 @@ export default {
 
       </div>
     </div>
-  </div>
-  <div v-else class="container-fluid center text-center">
-    <img src="../assets/UnknownAlbumSmall.jpg" class="img-fluid" style="width:5em;"/>
-    <button class="btn btn-primary" disabled>Back</button>
-    <button class="btn btn-primary" disabled>Play</button>
-    <button class="btn btn-primary" disabled>Pause</button>
-    <button class="btn btn-primary" disabled>Stop</button>
-    <button class="btn btn-primary" disabled>Next</button>
   </div>
 </div>
 </template>
