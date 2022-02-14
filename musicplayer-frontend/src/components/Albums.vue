@@ -25,7 +25,7 @@ export default {
         this.albums = d;
       },
       PlayAlbum(album){
-        console.log("Clicked " + album.Title);
+        this.$store.SetPlayQueue(album.Songs);
       }
   }
 }
