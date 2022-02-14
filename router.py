@@ -46,6 +46,19 @@ def APIArtist(id):
     }
     return jsonify(ArtistInfo)
 
+@app.route('/api/artist/all')
+def APIArtists():
+    artists = Artist.select()
+    ArtistsInfo = [{
+        "Title": artist.Title,
+        "ID": artist.id,
+        "Albums": [{
+            "Title":album.Title, 
+            "Id":album.id,
+            "ArtSmall":"data:image/jpg;base64,"+album.ArtSmall.decode()
+        } for album in artist.Albums]} for artist in artists]
+    return jsonify(ArtistsInfo)
+
 @app.route('/api/album/<id>')
 def APIAlbum(id):
     album = Album.get(id=id)

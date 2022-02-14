@@ -36,7 +36,7 @@ export default {
 </script>
 
 <template>
-    <div class="card" style="width: 10em;"  v-on:click="PlayAlbum()">
+    <div class="card shadow-lg" style="width: 10em;"  v-on:click="PlayAlbum()">
         <img class="card-img-top" v-bind:src="album.ArtSmall" style="width: 10em; height: 10em"/>
         <div class="card-body">
             <h6 class="card-title">{{ShortTitle}}</h6>

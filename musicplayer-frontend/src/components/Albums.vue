@@ -6,14 +6,8 @@ export default {
   components: { AlbumCard },
   data() {
     return {
-      message: "Hey from Adam",
       albums: [],
-      SongPlayer: {},
-      Song: ""
     }
-  },
-  props: {
-      PropMessage: String
   },
   methods: {
       async GetAlbums() {
@@ -21,17 +15,15 @@ export default {
         const d = await res.json();
         this.albums = d;
       }
+  },
+  mounted() {
+    this.GetAlbums();
   }
 }
 </script>
 
 <template>
 <div class="container-fluid">
-    <button v-on:click="GetAlbums">Get</button>
-    <button v-on:click="GetSong">Get Song</button>
-    <button v-on:click="PlaySong">Play Song</button>
-    <!-- Keeping this in my back pocket <audio controls v-bind:src="Song.MusicStream"/> -->
-    <p>{{Song.Title}}</p>
     <div class="d-flex flex-row flex-wrap gap-3" >
         <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
     </div>
