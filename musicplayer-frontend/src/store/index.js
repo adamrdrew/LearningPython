@@ -10,11 +10,11 @@ const store = createStore({
   },
   mutations: {
     SkipForward (state) {
-        if ( !state.CanSkipForward ) return;
+        if ( !this.getters.CanSkipForward ) return;
         state.NowPlayingIndex++;
     },
     SkipBackward (state) {
-        if ( !state.CanSkipBackward ) return;
+        if ( state.NowPlayingIndex == 0 ) return;
         state.NowPlayingIndex--;
     },
     SetPlayQueue(state, queue) {
@@ -29,10 +29,15 @@ const store = createStore({
   },
   getters: {
       NowPlayingSong(state) {
-          return state.PlayQueue[state.NowPlayingIndex] || {};
+          return state.PlayQueue[state.NowPlayingIndex] || {
+            ID: 0,
+            Title: "",
+            ArtSmall: "",
+            ArtLage: ""
+          };
       },
-      CanSkipForward(state) {
-          return state.NowPlayingIndex > state.PlayQueueLength - 1;
+      CanSkipForward(state, getters) {
+          return state.NowPlayingIndex < getters.PlayQueueLength - 1;
       },
       CanSkipBackward(state) {
         return state.NowPlayingIndex > 0;
@@ -40,6 +45,13 @@ const store = createStore({
       PlayQueueLength(state) {
           return state.PlayQueue.length;
       }
+  },
+  actions: {
+    async GetAndQueueAlbumSongs(context, AlbumID) {
+      const res = await fetch("http://127.0.0.1:5000/api/album/" + AlbumID);
+      const d = await res.json();
+      context.commit('SetPlayQueue', d.Songs);
+    }
   }
 })
 

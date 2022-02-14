@@ -8,6 +8,7 @@ export default {
       SongID: ""
     }
   },
+  components: {MusicPlayer},
   methods: {
     LoadSong(SongID) {
       this.SongID = SongID;
@@ -30,7 +31,7 @@ export default {
     </div>
   </header>
 
-  <MusicPlayer v-bind:Song="SongID"/>
+  <MusicPlayer/>
   <RouterView @load-song="LoadSong"/>
 </div>
 

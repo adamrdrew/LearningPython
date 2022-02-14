@@ -16,16 +16,10 @@ export default {
       PropMessage: String
   },
   methods: {
-      ChangeIt() {
-        this.message = "Did it";
-      },
       async GetAlbums() {
         const res = await fetch("http://127.0.0.1:5000/api/album/all")
         const d = await res.json();
         this.albums = d;
-      },
-      PlayAlbum(album){
-        this.$store.SetPlayQueue(album.Songs);
       }
   }
 }
@@ -39,7 +33,7 @@ export default {
     <!-- Keeping this in my back pocket <audio controls v-bind:src="Song.MusicStream"/> -->
     <p>{{Song.Title}}</p>
     <div class="d-flex flex-row flex-wrap gap-3" >
-        <album-card v-on:click="PlayAlbum(album)" v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
+        <album-card v-for="album in albums" v-bind:album="album" v-bind:key="album.ID"/>
     </div>
 </div>
 </template>
