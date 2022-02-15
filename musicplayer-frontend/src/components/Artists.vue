@@ -25,7 +25,7 @@ export default {
 <template>
 <div class="container-fluid">
     <div class="d-flex flex-row flex-wrap gap-3" >
-        <artist-card v-for="artist in artists" v-bind:artist="artist" v-bind:key="artist.ID"/>
+        <artist-card v-for="artist in artists" v-bind:artist="artist" v-bind:key="artist.id"/>
     </div>
 </div>
 </template>

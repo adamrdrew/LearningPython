@@ -50,7 +50,13 @@ const store = createStore({
     async GetAndQueueAlbumSongs(context, AlbumID) {
       const res = await fetch("http://127.0.0.1:5000/api/album/" + AlbumID);
       const d = await res.json();
-      context.commit('SetPlayQueue', d.Songs);
+      context.commit('SetPlayQueue', d.songs);
+    },
+    async GetAndQueueSong(context, SongID) {
+      const url = "http://127.0.0.1:5000/api/song/" + SongID;
+      const res = await fetch(url);
+      const d = await res.json();
+      context.commit('SetPlayQueue', [d]);
     }
   }
 })

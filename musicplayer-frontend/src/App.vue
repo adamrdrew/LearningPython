@@ -27,10 +27,10 @@ export default {
       </div>
     </div>
     <div class="row" style="padding-top: 5em;">
-      <div class="col-md-1">
+      <div class="col-md-2">
         <LeftPanel/>
       </div>
-      <div class="col-md-11">
+      <div class="col-md-10">
         <RouterView/>
       </div>
     </div>

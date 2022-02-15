@@ -7,21 +7,21 @@ export default {
   },
   props: {
       artist: {
-          Title: String,
-          Id: String,
-          Albums: []
+          title: String,
+          id: String,
+          albums: []
       }
   },
   methods: {
       ShowArtistAlbums(){
-        this.$store.dispatch('GetAndQueueAlbumSongs', this.album.ID);
+        this.$store.dispatch('GetAndQueueAlbumSongs', this.album.id);
       }
   },
   computed: {
       ShortTitle() {
-          const len = this.artist.Title.length;
-          if ( len <= this.TitleMaxLen ) return this.artist.Title;
-          const sub = this.artist.Title.slice(0, this.TitleMaxLen - 3);
+          const len = this.artist.title.length;
+          if ( len <= this.TitleMaxLen ) return this.artist.title;
+          const sub = this.artist.title.slice(0, this.TitleMaxLen - 3);
           const subElipsed = sub + "...";
           return subElipsed;
       }
@@ -31,7 +31,7 @@ export default {
 
 <template>
     <div class="card shadow-lg" style="width: 10em;"  v-on:click="ShowArtistAlbums()">
-        <img class="card-img-top" v-bind:src="artist.Albums[0].ArtSmall" style="width: 10em; height: 10em"/>
+        <img class="card-img-top" v-bind:src="artist.albums[0].art_small" style="width: 10em; height: 10em"/>
         <div class="card-body">
             <h6 class="card-title">{{ShortTitle}}</h6>
         </div>

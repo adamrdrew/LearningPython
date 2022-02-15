@@ -7,8 +7,8 @@ export default {
     return {
       SongLoaded: false,
       Song: {
-          Title: "",
-          MusicStream: "",
+          title: "",
+          music_stream: "",
       },
       SongPlayer: {},
       intervalHandle: {},
@@ -24,7 +24,7 @@ export default {
       PlaySong() {
         this.StopSong();
         this.SongPlayer = new Howl({
-          src: [this.Song.MusicStream],
+          src: [this.Song.music_stream],
           //format: ["flac"]
         });
         this.SongLength = 100;
@@ -36,7 +36,7 @@ export default {
         this.SongLoaded = true;
       },
       async GetSong() {
-        const res = await fetch("http://127.0.0.1:5000/api/song/" + this.NowPlayingSong.Id);
+        const res = await fetch("http://127.0.0.1:5000/api/song/" + this.NowPlayingSong.id);
         const d = await res.json();
         this.Song = d;
       },
@@ -103,11 +103,11 @@ export default {
       <div class="col-md-4">
         <div class="d-flex align-items-center">
           <div class="flex-shrink-0">
-            <img v-if="SongLoaded" v-bind:src="Song.Album.ArtSmall" class="img-fluid" style="width:5em;"/>
+            <img v-if="SongLoaded" v-bind:src="Song.album.art_small" class="img-fluid" style="width:5em;"/>
           </div>
           <div  v-if="SongLoaded" class="flex-grow-1 ms-3">
-            <h6>{{Song.Title}}</h6>
-            <small class="card-text">{{Song.Artist.Title}}</small>
+            <h6>{{Song.title}}</h6>
+            <small class="card-text">{{Song.artist.title}}</small>
             <div class="progress">
               <div class="progress-bar" v-bind:style="ProgressBarStyle"></div>
             </div>
