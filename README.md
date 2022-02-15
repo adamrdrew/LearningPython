@@ -1,4 +1,5 @@
 # NebulaPlayer
+![Screenshot](images/nebula.png)
 A personal music player written in Python and VueJS. NebulaPlayer isn't a practical project - it is unlikely that anyone needs it - it was written as a learning exercize to improve the author's Python skills as well as to get up to speed on what's new in the world of Vue. However, if it is of use to anyone that is wonderful.
 
 ## Requirements
